@@ -34,6 +34,7 @@ class JpegDecoder {
     private Map<Integer, int[]> qTables; // <qt destination, 8x8 table> destination Y : 0 CbCr : 1
 
     // sof
+    private int precision; // bit precision
     private int width, height;
     private int mcuWidth;
     private int mcuHeight;
@@ -65,11 +66,12 @@ class JpegDecoder {
         qTables = new HashMap<>();
         hTables = new HashMap<>();
         fileName = image.substring(0, image.lastIndexOf('.'));
+        mode = -1; // 'uninitialized' value, use first sof marker encountered
 
         System.out.println("Reading " + image + "...\n");
 
         // start decoding...
-        for(int i = 0; i < jpegImgData.length; i++) {
+        main: for(int i = 0; i < jpegImgData.length; i++) {
             if(jpegImgData[i] == 0xff) {
                 int m = jpegImgData[i] << 8 | jpegImgData[i+1];
                 switch (m) {
@@ -91,13 +93,17 @@ class JpegDecoder {
                     case 0xffc0 -> { // sof-0 baseline
                         int length = jpegImgData[i + 2] << 8 | jpegImgData[i + 3];
                         decodeStartOfFrame(Arrays.copyOfRange(jpegImgData, i + 4, i + 2 + length));
-                        mode = 0;
+                        if(mode == -1) mode = 0;
+                    }
+                    case 0xffc2 -> { // sof-1 progressive
+                        if(mode == -1) mode = 1;
                     }
                     case 0xffda -> { // sos
                         int length = jpegImgData[i + 2] << 8 | jpegImgData[i + 3];
                         decodeStartOfScan(
                                 /*Arrays.copyOfRange(jpegImgData, i + 4, i + 2 + length),*/
                                 Arrays.copyOfRange(jpegImgData, i + 2 + length, jpegImgData.length - 2)); // last 2 two bytes are 0xffd9 - EOI
+                        break main; // all done!
                     }
                 }
             }
@@ -145,7 +151,7 @@ class JpegDecoder {
     }
 
     private void decodeStartOfFrame(int[] chunk) {
-        // int precision = chunk[0];
+        precision = chunk[0];
 
         height = chunk[1] << 8 | chunk[2];
         width = chunk[3] << 8 | chunk[4];
@@ -335,7 +341,7 @@ class JpegDecoder {
 
     // key used for dc and ac huffman table and quantization table
     private int[][] createMatrix(BitStream stream, int key, int[] oldDCCoes, int oldDCCoIndex) {
-        DCT3 inverseDCT = new DCT3();
+        DCT3 inverseDCT = new DCT3(precision);
 
         int code = hTables.get(key).getCode(stream);
         if(code == -1) return null; // end of bit stream

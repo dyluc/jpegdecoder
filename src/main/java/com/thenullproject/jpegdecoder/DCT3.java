@@ -6,7 +6,7 @@ class DCT3 { // inverse dct
     private final int[][] zigzag;
     private final int precision;
 
-    DCT3() {
+    DCT3(int precision) {
         components = new int[64];
         zigzag = new int[][] {
                 {0, 1, 5, 6, 14, 15, 27, 28},
@@ -18,7 +18,7 @@ class DCT3 { // inverse dct
                 {21, 34, 37, 47, 50, 56, 59, 61},
                 {35, 36, 48, 49, 57, 58, 62, 63}
         };
-        precision = 8; // 8 for baseline dct
+        this.precision = precision;
     }
 
     public void setComponent(int index, int value) {
