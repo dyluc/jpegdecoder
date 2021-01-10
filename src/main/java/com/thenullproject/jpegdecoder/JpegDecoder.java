@@ -161,9 +161,9 @@ class JpegDecoder {
         // component sample factor stored relatively, so y component sample factor contains information about how
         // large mcu is.
         for(int i = 0; i < noc; i++) {
-            // int id = chunk[6+(i*3)]; // 1 = Y, 2 = Cb, 3 = Cr, 4 = I, 5 = Q
+            int id = chunk[6+(i*3)]; // 1 = Y, 2 = Cb, 3 = Cr, 4 = I, 5 = Q
             int factor = chunk[7+(i*3)];
-            if(i == 0) { // y component, check sample factor to determine mcu size
+            if(id == 1) { // y component, check sample factor to determine mcu size
                 mcuHSF = (factor >> 4); // first nibble (horizontal sample factor)
                 mcuVSF = (factor & 0x0f); // second nibble (vertical sample factor)
                 mcuWidth = 8 * mcuHSF;
