@@ -9,3 +9,5 @@ usage: jpegdecode <jpeg-image>
 jpeg-image: jpeg image source file
 
 Images are decoded into bitmap(.bmp) in the same directory as the source image.
+
+Check out blog post on this topic [here](https://thenullproject.com/page.html?fetchpost=5).
