@@ -10,4 +10,4 @@ jpeg-image: jpeg image source file
 
 Images are decoded into bitmap(.bmp) in the same directory as the source image.
 
-Check out blog post on this topic [here](https://dyluc.github.io/posts/decoding-jpegs/).
+Check out blog post on this topic [here](https://dyluc.github.io/2021/01/17/decoding-jpegs-in-java.html).
